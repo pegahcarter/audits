@@ -27,7 +27,58 @@ This audit covers smart contracts on commit [`9d4f735ab9a1e7ae3310069ab637c9bec4
         * If TREE price < price to burn TREE, can arb by buying on Uniswap and burning
 
 
+## Directory Structure
+```
+├── buidler.config.js
+├── contracts
+│   ├── interfaces
+│   │   ├── IAMB.sol
+│   │   ├── IOmniBridge.sol
+│   │   ├── ITREEOracle.sol
+│   │   └── ITREERewards.sol
+│   ├── libraries
+│   │   └── CloneFactory.sol
+│   ├── Timelock.sol
+│   ├── TREERebaser.sol
+│   ├── TREEReserve.sol
+│   ├── TREERewardsFactory.sol
+│   ├── TREERewards.sol
+│   ├── TREE.sol
+│   └── UniswapOracle.sol
+├── deploy
+│   ├── burn-admin-keys.js
+│   ├── Forests.js
+│   ├── LPRewards.js
+│   ├── Timelock-init.js
+│   ├── Timelock.js
+│   ├── TREE-init.js
+│   ├── TREE.js
+│   ├── TREERebaser.js
+│   ├── TREEReserve-init.js
+│   ├── TREEReserve.js
+│   ├── TREERewardsFactory.js
+│   ├── UniswapOracle-init.js
+│   ├── UniswapOracle.js
+│   └── UniswapPair.js
+├── deploy-configs
+│   ├── forests.json
+│   ├── get-config.js
+│   ├── mainnet-fork.json
+│   ├── mainnet.json
+│   └── network.json
+├── DEPLOY_README.md
+├── README.md
+├── scripts
+│   ├── setup-test-env.js
+│   ├── setup-test-rebase.js
+│   └── start-mainnet-fork.sh
+└── test
+    └── test.js
+```
+
 ## Contracts
+
+
 ### TREE.sol
 * `initContracts(address _rebaser, address _reserve)`
     * Set the initial `rebaser` and `reserve` addresses
@@ -92,6 +143,9 @@ This audit covers smart contracts on commit [`9d4f735ab9a1e7ae3310069ab637c9bec4
     * set CharityCut to a new value
 * `setRewardsCut(uint256 _newValue)`
     * set RewardsCut to a new value
+
+### Timelock.sol
+
 
 ## Areas of Concern
 
