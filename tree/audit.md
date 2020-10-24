@@ -4,15 +4,27 @@
 This audit covers smart contracts on commit [`9d4f735ab9a1e7ae3310069ab637c9bec4e72d21`](https://github.com/WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21)
 
 
+### [README](https://github.com/WhalerDAO/tree-contracts/blob/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21/README.md) Summary
+* DAOs/pools
+    * TREE-yUSD uniswap pool
+    * charity DAO
+    * reserve (holds yUSD from rebases)
+* Rebases
+    * Only happens when TREE exceed 1.05 yUSD
+    * TREE minted is proportional to price deviation
+    * Of the TREE minted
+        * 10% sent to rewards pool for uniswap LP's
+        * 10% sold for yUSD and sent to charity DAO
+        * 80% sold for yUSD and put into reserve
+    * Weights can be changed by governance
 
-## Validating README
-Below is a summary of the [README](https://github.com/WhalerDAO/tree-contracts/blob/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21/README.md) which compares the README to the codebase.
-
-### Rebase
-* [x] [When the price of 1 TREE exceeds 1.05 yUSD, a rebase will be triggered, minting TREE proportional to the price deviation.  TREE will not rebase when price is below 1 yUSD.](https://github.com/WhalerDAO/tree-contracts/blob/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21/contracts/TREERebaser.sol#L133)
-    * [1.01 yUSD, max is 1.10 yUSD](https://github.com/WhalerDAO/tree-contracts/blob/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21/contracts/TREERebaser.sol#L51)
-* [x] Of the minted TREE, 10% is sent to a rewards pool for TREE-yUSD UNI-V2 liquidity providers, 10% is sold for yUSD and sent to the charity DAO, and 80% is sold for yUSD and put into the reserve.
-
+* Quadratic burning
+    * Burn supply to get the square root of reserve
+        * burn 1% of supply to get 0.01% of reserve (.01 * .01)
+        * burn 25% of supply to get 6.25% of reserve (.25 * .25)
+    * If only 1 holder, they can burn to get 100% of reserve
+    * Fixed Price to burn TREE
+        * If TREE price < price to burn TREE, can arb by buying on Uniswap and burning
 
 
 ## Contracts
@@ -188,8 +200,9 @@ Where quadratic voting favors the smaller vote, quadratic burning favors the lar
 
 ## Additional Feedback
 ### Documentation
-Documentation between contracts is inconsistent and some large functions are missing comments altogether.  [NatSpec](https://solidity.readthedocs.io/en/latest/natspec-format.html#natspec) is the recommended documentation style and should be used throughout the project.
+Documentation between contracts is inconsistent and some primary functions are missing comments altogether.  [NatSpec](https://solidity.readthedocs.io/en/latest/natspec-format.html#natspec) is the recommended documentation style and should be used throughout the project.
 
+For example, TREEReserve.burnTREE() will be widely used but has no supporting documentation. 
 
 ## Testing
 
