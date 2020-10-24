@@ -90,73 +90,76 @@ Below is a summary of the [README](https://github.com/WhalerDAO/tree-contracts/b
 ### rebaseMultiplier (TREERebaser.sol)
 * The `rebaseMultiplier` variable can range between 0.05x and 10x.  This is a range of 2000x (0.05 * 2000 = 10) and is unnecessarily large.  Large changes in `rebaseMultiplier` may have unintended consequences on TREE price and supply. (TODO: be more precise about 'unintended consequences')
 
-Let's play out a scenario where TREE price increased 8% in 12 hours to 1.08 yUSD and `rebaseMultiplier` is 0.5x.
+Let's play out a scenario where TREE price increased 8% in 12 hours to 1.08 yUSD and `rebaseMultiplier` is 5x.
 
-Let's say TREE rebases back to $1.00 with a total supply of 1,000 TREE.  12 hours later, TREE price has increased 8% to $1.08, which is not unheard of in crypto. The price peg to rebalance is $1.05.
-```
+Let's say TREE rebases back to $1.00 with a total supply of 1,000 TREE.  12 hours later, TREE price has increased 8% to $1.08, which is not unheard of in crypto. The price peg to rebalance is $1.05.  `charityCut` and `rewardsCut` are set to the middle value in their range.  `rebaseMultiplier` is set to 5x
+
+Let's also assume selling 8% of total supply will lower price 8%. In reality this will be much lower and depends on the quantity of TREE locked in the LP.
+
+Finally, assume the quantity of reserveTokenReceived is the same quantity of TREE sold.  This number will also be lower in reality due to fees/slippage.
+
+```Javascript
 
 PRECISION = 10**18
 treePrice = 1.08 * 10**18
-rebaseMultiplier = 5 * 10**18
 treeSupply = 1000 * 10**18
 
 charityCut = 2.5 * 10**17 // 25%
-rewardsCut = 5 * 10**16   // 5%
+rewardsCut = 5 * 10**18   // 5%
+rebaseMultiplier = 5 * 10**18  // 5x
 
 
-// TREERebaser.sol lines ? TODO
+// TREERebaser.sol lines 136-147
 
 uint256 indexDelta = treePrice.sub(PRECISION).mul(rebaseMultiplier).div(PRECISION);  // 4 * 10**17 or 40%
 
 // calculate the change in total supply
 uint256 treeSupply = tree.totalSupply();  // in this case, 1000 * 10**18
-uint256 supplyChangeAmount = treeSupply.mul(indexDelta).div(PRECISION);    // 4 * 10**18 or 4 TREE
+uint256 supplyChangeAmount = treeSupply.mul(indexDelta).div(PRECISION);    // 4 * 10**20 or 400 TREE
 
 // rebase TREE
 // mint TREE proportional to deviation
 // (1) mint TREE to reserve
-tree.rebaserMint(address(reserve), supplyChangeAmount);  // Mint 4 TREE to the reserve
+tree.rebaserMint(address(reserve), supplyChangeAmount);  // Mint 400 TREE to the reserve
 // (2) let reserve perform actions with the minted TREE
 reserve.handlePositiveRebase(supplyChangeAmount);
 
 
-// TREEReserve.sol lines ? TODO
+// TREEReserve.sol lines 148-174
 
 function handlePositiveRebase(uint256 mintedTREEAmount)
-external
-onlyRebaser
-nonReentrant
+  external
+  onlyRebaser
+  nonReentrant
 {
-// send TREE to TREERewards
-uint256 rewardsCutAmount = mintedTREEAmount.mul(rewardsCut).div(PRECISION);  // 2 * 10**17 or 0.2 TREE
-tree.transfer(address(lpRewards), rewardsCutAmount);
-lpRewards.notifyRewardAmount(rewardsCutAmount);
-
-// sell remaining TREE for reserveToken
-uint256 remainingTREEAmount = mintedTREEAmount.sub(rewardsCutAmount);  // 3.8 * 10**18 or 3.8 TREE
-(uint256 treeSold, uint256 reserveTokenReceived) = _sellTREE(       // Assume treeSold = 3.8 * 10**18 or 3.8 TREE and reserveTokenReceived = 3.9 * 10**18 or 3.9 yUSD (TODO- figure out tilde and better comment)
-    remainingTREEAmount
-);
-
-// burn unsold TREE
-if (treeSold < remainingTREEAmount) {
-    tree.reserveBurn(address(this), remainingTREEAmount.sub(treeSold));  // No TREE is burned in this case
-}
-
-// send reserveToken to charity
-uint256 charityCutAmount = reserveTokenReceived.mul(charityCut).div(PRECISION.sub(rewardsCut));  // 3.9
-reserveToken.safeIncreaseAllowance(address(omniBridge), charityCutAmount);
-omniBridge.relayTokens(address(reserveToken), charity, charityCutAmount);
-
-// emit event
-emit SellTREE(treeSold, reserveTokenReceived);
-}
+  // send TREE to TREERewards
+  uint256 rewardsCutAmount = mintedTREEAmount.mul(rewardsCut).div(PRECISION);  // 2 * 10**17 or 20 TREE
+  tree.transfer(address(lpRewards), rewardsCutAmount);
+  lpRewards.notifyRewardAmount(rewardsCutAmount);
+  
+  // sell remaining TREE for reserveToken
+  uint256 remainingTREEAmount = mintedTREEAmount.sub(rewardsCutAmount);  // 3.8 * 10**20 or 380 TREE
+  (uint256 treeSold, uint256 reserveTokenReceived) = _sellTREE(  // treeSold = 8 * 10**19 or 80 TREE, reserveTokenReceived = 8 * 10**19 or 80 yUSD
+      remainingTREEAmount  // 3 * 10**20 or 300 TREE
+  );
+  
+  // burn unsold TREE
+  if (treeSold < remainingTREEAmount) {
+      tree.reserveBurn(address(this), remainingTREEAmount.sub(treeSold));  // 300 TREE burned
+  }
+  
+  // send reserveToken to charity
+  uint256 charityCutAmount = reserveTokenReceived.mul(charityCut).div(PRECISION.sub(rewardsCut));  // 2.1 * 10**19 or 21 yUSD
+  reserveToken.safeIncreaseAllowance(address(omniBridge), charityCutAmount);
+  omniBridge.relayTokens(address(reserveToken), charity, charityCutAmount);
 
 ```
 
+As you can tell, even with making impossibly-optimistic `treeSold` and `reserveTokenReceived` assumptions, LP providers receive about the same reward as charity.  The imbalance will weight heavily towards LP providers in reality.
+
+The misleading metrics here are `charityCut` and `rewardsCut`.  With `rewardsCut` set to 5% and `charityCut` set to 25%, you'd expect `rewardsCut` to be roughly 1/5 of `charityCut`.  
 
 
-If the price peg is $1.05 to trigger a rebalance, we're now looking at a 10% `indexDelta` (1.15 - 1.05 = 0.1).  
 
 
 ### ownerMint() (TREE.sol)
