@@ -1,7 +1,7 @@
 # WhalerDAO/tree-contracts
 
 ## Scope
-This audit covers smart contracts on commit [`9d4f735ab9a1e7ae3310069ab637c9bec4e72d21`](https://github.com/WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21)
+This audit covers smart contracts from [`github.com/WhalerDAO/tree-contracts`](https://github.com/WhalerDAO/tree-contracts) on commit [`9d4f735 `](https://github.com/WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21).
 
 
 ### [README](https://github.com/WhalerDAO/tree-contracts/blob/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21/README.md) Summary
@@ -10,7 +10,7 @@ This audit covers smart contracts on commit [`9d4f735ab9a1e7ae3310069ab637c9bec4
     * charity DAO
     * reserve (holds yUSD from rebases)
 * Rebases
-    * Only happens when TREE exceed 1.05 yUSD
+    * Only happens when TREE price exceeds 1.05 yUSD
     * TREE minted is proportional to price deviation
     * Of the TREE minted
         * 10% sent to rewards pool for uniswap LP's
@@ -76,7 +76,9 @@ This audit covers smart contracts on commit [`9d4f735ab9a1e7ae3310069ab637c9bec4
     └── test.js
 ```
 
-## Contracts
+
+---
+## Contracts Reviewed
 
 
 ### TREE.sol
@@ -144,16 +146,13 @@ This audit covers smart contracts on commit [`9d4f735ab9a1e7ae3310069ab637c9bec4
 * `setRewardsCut(uint256 _newValue)`
     * set RewardsCut to a new value
 
-### Timelock.sol
+# Areas of Concern
 
-
-## Areas of Concern
-
-### Governance
+## Governance
 1. `setGov()`
 2. No minimum time locks on governance
 
-### rebaseMultiplier (TREERebaser.sol)
+## rebaseMultiplier (TREERebaser.sol)
 * The `rebaseMultiplier` variable can range between 0.05x and 10x.  This is a range of 2000x (0.05 * 2000 = 10) and is unnecessarily large.  Large changes in `rebaseMultiplier` may have unintended consequences on TREE price and supply. (TODO: be more precise about 'unintended consequences')
 
 Let's play out a scenario where TREE price increased 8% in 12 hours to 1.08 yUSD and `rebaseMultiplier` is 5x.
@@ -226,12 +225,6 @@ As you can tell, even with making impossibly-optimistic `treeSold` and `reserveT
 The misleading metrics here are `charityCut` and `rewardsCut`.  With `rewardsCut` set to 5% and `charityCut` set to 25%, you'd expect `rewardsCut` to be roughly 1/5 of `charityCut`.  
 
 
-
-
-### ownerMint() (TREE.sol)
-* The `ownerMint()` function is used only in testing to mint tokens.  It should be removed from TREE.sol when deployed to mainnet.  Otherwise, the EOA that deployed the contract could mint infinite TREE at any time.
-
-
 ### Quadratic burning
 Where quadratic voting favors the smaller vote, quadratic burning favors the larger burn
 
@@ -259,6 +252,38 @@ Documentation between contracts is inconsistent and some primary functions are m
 For example, TREEReserve.burnTREE() will be widely used but has no supporting documentation. 
 
 ## Testing
+Tests were performed on a Linux OS and Mac OS, and failed on both.  In both instance the same error occured for each test:
+
+```
+  0 passing (50s)
+  4 failing
+
+
+  1) TREE
+       "before each" hook for "should not have owner":
+     ERROR processing /home/carl/Documents/tree-contracts/deploy/UniswapPair.js:
+Error: VM Exception while processing transaction: revert UniswapV2: FORBIDDEN
+
+
+  2) Farming
+       "before each" hook for "should give correct reward to regular pool":
+     ERROR processing /home/carl/Documents/tree-contracts/deploy/UniswapPair.js:
+Error: VM Exception while processing transaction: revert UniswapV2: FORBIDDEN
+
+
+  3) Rebasing
+       "before each" hook for "should not rebase when price delta is below threshold":
+     ERROR processing /home/carl/Documents/tree-contracts/deploy/UniswapPair.js:
+Error: VM Exception while processing transaction: revert UniswapV2: FORBIDDEN
+
+
+  4) Reserve
+       "before each" hook for "should sell TREE during rebase":
+     ERROR processing /home/carl/Documents/tree-contracts/deploy/UniswapPair.js:
+Error: VM Exception while processing transaction: revert UniswapV2: FORBIDDEN
+
+```
+
 
 
 ## Disclaimer
