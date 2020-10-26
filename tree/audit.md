@@ -1,7 +1,7 @@
 # WhalerDAO/tree-contracts
 
 ## Scope
-This audit covers smart contracts from [`github.com/WhalerDAO/tree-contracts`](https://github.com/WhalerDAO/tree-contracts) on commit [`9d4f735 `](https://github.com/WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21).
+This audit covers smart contracts from [`github.com/WhalerDAO/tree-contracts`](https://github.com/WhalerDAO/tree-contracts) on commit [`9d4f735`](https://github.com/WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21).
 
 
 ### [README](https://github.com/WhalerDAO/tree-contracts/blob/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21/README.md) Summary
