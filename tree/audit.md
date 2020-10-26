@@ -79,7 +79,9 @@ This audit covers smart contracts from [`github.com/WhalerDAO/tree-contracts`](h
 
 ---
 ## Contracts Reviewed
-
+* TREE.sol
+* TREERebaser.sol
+* TreeReserve.sol
 
 ### TREE.sol
 * `initContracts(address _rebaser, address _reserve)`
@@ -224,6 +226,8 @@ As you can tell, even with making impossibly-optimistic `treeSold` and `reserveT
 
 The misleading metrics here are `charityCut` and `rewardsCut`.  With `rewardsCut` set to 5% and `charityCut` set to 25%, you'd expect `rewardsCut` to be roughly 1/5 of `charityCut`.  
 
+__Suggestion:__ calculate `charityCut` and `rewardsCut` at the same time. 
+
 
 ### Quadratic burning
 Where quadratic voting favors the smaller vote, quadratic burning favors the larger burn.
@@ -295,4 +299,4 @@ Error: VM Exception while processing transaction: revert UniswapV2: FORBIDDEN
 
 
 ## Disclaimer
-This audit was performed at no cost to WhalerDAO.  This report is not investment advice and in no way proof of a perfect smart contract.  This audit was done to the best of Carter Carlson's ability from X - X and focused primarily on the main smart contracts.  
+This audit was performed at no cost to WhalerDAO.  This report is not investment advice and in no way proof of a perfect smart contract.  This audit was done to the best of Carl Farterson's ability and focused on several of the primary contracts.  
