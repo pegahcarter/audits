@@ -1,7 +1,7 @@
 # WhalerDAO/tree-contracts
 
 ## Scope
-This audit covers smart contracts from [`github.com/WhalerDAO/tree-contracts`](https://github.com/WhalerDAO/tree-contracts) on commit [`9d4f735`](https://github.com/WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21).
+This audit covers three primary smart contracts from [`github.com/WhalerDAO/tree-contracts`](https://github.com/WhalerDAO/tree-contracts) on commit [`9d4f735`](https://github.com/WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21).
 
 
 ### [README](https://github.com/WhalerDAO/tree-contracts/blob/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21/README.md) Summary
@@ -151,7 +151,7 @@ This audit covers smart contracts from [`github.com/WhalerDAO/tree-contracts`](h
 # Areas of Concern
 
 
-## rebaseMultiplier (TREERebaser.sol)
+## rebaseMultiplier (TREERebaser.sol)[TO BE FIXED]
 The `rebaseMultiplier` variable can range between 0.05x and 10x.  This is a range of 2000x (0.05 * 2000 = 10) and is unnecessarily large.  Large changes in `rebaseMultiplier` may have unintended consequences on TREE price and supply. (TODO: be more precise about 'unintended consequences')
 
 Let's play out a scenario where TREE price increased 8% in 12 hours to 1.08 yUSD and `rebaseMultiplier` is 5x.
@@ -224,6 +224,8 @@ As you can tell, even with making impossibly-optimistic `treeSold` and `reserveT
 The misleading metrics here are `charityCut` and `rewardsCut`.  With `rewardsCut` set to 5% and `charityCut` set to 25%, you'd expect `rewardsCut` to be roughly 1/5 of `charityCut`.  
 
 __Suggestion:__ calculate `charityCut` and `rewardsCut` at the same time. 
+
+__Solution:__ Implementing the suggestion.  Commit with changed code will be added when complete.
  
 
 ### Quadratic burning [FIXED]
