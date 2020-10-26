@@ -150,12 +150,9 @@ This audit covers smart contracts from [`github.com/WhalerDAO/tree-contracts`](h
 
 # Areas of Concern
 
-## Governance
-1. `setGov()`
-2. No minimum time locks on governance
 
 ## rebaseMultiplier (TREERebaser.sol)
-* The `rebaseMultiplier` variable can range between 0.05x and 10x.  This is a range of 2000x (0.05 * 2000 = 10) and is unnecessarily large.  Large changes in `rebaseMultiplier` may have unintended consequences on TREE price and supply. (TODO: be more precise about 'unintended consequences')
+The `rebaseMultiplier` variable can range between 0.05x and 10x.  This is a range of 2000x (0.05 * 2000 = 10) and is unnecessarily large.  Large changes in `rebaseMultiplier` may have unintended consequences on TREE price and supply. (TODO: be more precise about 'unintended consequences')
 
 Let's play out a scenario where TREE price increased 8% in 12 hours to 1.08 yUSD and `rebaseMultiplier` is 5x.
 
@@ -227,9 +224,9 @@ As you can tell, even with making impossibly-optimistic `treeSold` and `reserveT
 The misleading metrics here are `charityCut` and `rewardsCut`.  With `rewardsCut` set to 5% and `charityCut` set to 25%, you'd expect `rewardsCut` to be roughly 1/5 of `charityCut`.  
 
 __Suggestion:__ calculate `charityCut` and `rewardsCut` at the same time. 
+ 
 
-
-### Quadratic burning
+### Quadratic burning [FIXED]
 Where quadratic voting favors the smaller vote, quadratic burning favors the larger burn.
 
 Quadratic Voting:
@@ -255,6 +252,7 @@ In both scenarios, each time you increase the quantity by 10x the end result inc
 
 Ultimately, my concern is that a flash loan could burn a high percentage of supply as each 10x change in supply burned returns 100x of the reserve.  Repeated flash loans may have the potential to drain the reserves at a rate higher than expected. 
 
+__Solution:__ Since we already assume some users will arbitrage, this behavior is expected.
 
 
 ## Additional Feedback
