@@ -226,23 +226,31 @@ The misleading metrics here are `charityCut` and `rewardsCut`.  With `rewardsCut
 
 
 ### Quadratic burning
-Where quadratic voting favors the smaller vote, quadratic burning favors the larger burn
+Where quadratic voting favors the smaller vote, quadratic burning favors the larger burn.
 
-|---|---|
-|Quadratic Voting|
+Quadratic Voting:
+
 | # of votes | Cost |
+|--|--|
 | 1 | 1  |
 | 2 | 4  |
 | 5 | 25 |
 | 10| 100|
-| 100| 10000|
 
 
-| Quadratic Burning |
-| % Supply burned |  % of reserves received |
+Quadratic Burning:
+| % of Supply burned |  % of reserves received |
+|---|---|
 | 0.01 | 0.0001 |
+| 0.02 | 0.0004 |
+| 0.05 | 0.0025 |
+| 0.10 | 0.01
 
-| 10 | 1 |
+
+In both scenarios, each time you increase the quantity by 10x the end result increases by 100x.  The primary difference here is that quadratic voting adds cost to the user, where quadratic burning adds benefits to the user.
+
+Ultimately, my concern is that a flash loan could burn a high percentage of supply as each 10x change in supply burned returns 100x of the reserve.  Repeated flash loans may have the potential to drain the reserves at a rate higher than expected. 
+
 
 
 ## Additional Feedback
