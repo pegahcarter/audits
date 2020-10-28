@@ -1,3 +1,6 @@
 [submodule "tree/tree-contracts"]
 	path = tree/tree-contracts
 	url = https://github.com/WhalerDAO/tree-contracts
+[submodule "LexDAO/LexCorpus"]
+	path = LexDAO/LexCorpus
+	url = https://github.com/lexDAO/LexCorpus
