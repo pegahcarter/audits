@@ -151,7 +151,7 @@ This audit covers three primary smart contracts from [`github.com/WhalerDAO/tree
 # Areas of Concern
 
 
-## rebaseMultiplier (TREERebaser.sol)[TO BE FIXED]
+## rebaseMultiplier (TREERebaser.sol)[FIXED]
 The `rebaseMultiplier` variable can range between 0.05x and 10x.  This is a range of 2000x (0.05 * 2000 = 10) and is unnecessarily large.  Large changes in `rebaseMultiplier` may have unintended consequences on TREE price and supply. (TODO: be more precise about 'unintended consequences')
 
 Let's play out a scenario where TREE price increased 8% in 12 hours to 1.08 yUSD and `rebaseMultiplier` is 5x.
@@ -226,7 +226,50 @@ The misleading metrics here are `charityCut` and `rewardsCut`.  With `rewardsCut
 __Suggestion:__ calculate `charityCut` and `rewardsCut` at the same time. 
 
 __Solution:__ Implementing the suggestion.  Commit with changed code will be added when complete.
- 
+
+__UPDATE:__ Commit [`8476eac`](https://github.com/WhalerDAO/tree-contracts/commit/8476eace9a943d256650946215d5090506a9167e) addresses this issue and calculates `rewardsCutAmount` before TREE is sold to Uniswap.
+
+```Solidity
+  function handlePositiveRebase(uint256 mintedTREEAmount)
+    external
+    onlyRebaser
+    nonReentrant
+  {
+    // sell remaining TREE for reserveToken
+    uint256 rewardsCutAmount = mintedTREEAmount.mul(rewardsCut).div(PRECISION);
+    uint256 remainingTREEAmount = mintedTREEAmount.sub(rewardsCutAmount);
+    (uint256 treeSold, uint256 reserveTokenReceived) = _sellTREE(
+      remainingTREEAmount
+    );
+
+    // handle unsold TREE
+    if (treeSold < remainingTREEAmount) {
+      // the TREE going to rewards should be decreased if there's unsold TREE
+      // to maintain the ratio between charityCut and rewardsCut
+      uint256 newRewardsCutAmount = rewardsCutAmount.mul(treeSold).div(remainingTREEAmount);
+      uint256 burnAmount = remainingTREEAmount.sub(treeSold).add(rewardsCutAmount).sub(newRewardsCutAmount);
+      rewardsCutAmount = newRewardsCutAmount;
+
+      // burn unsold TREE
+      tree.reserveBurn(address(this), burnAmount);
+    }
+
+    // send reserveToken to charity
+    uint256 charityCutAmount = reserveTokenReceived.mul(charityCut).div(
+      PRECISION.sub(rewardsCut)
+    );
+    reserveToken.safeIncreaseAllowance(address(omniBridge), charityCutAmount);
+    omniBridge.relayTokens(address(reserveToken), charity, charityCutAmount);
+
+    // send TREE to TREERewards
+    tree.transfer(address(lpRewards), rewardsCutAmount);
+    lpRewards.notifyRewardAmount(rewardsCutAmount);
+
+    // emit event
+    emit SellTREE(treeSold, reserveTokenReceived);
+  }
+```
+
 
 ### Quadratic burning [FIXED]
 Where quadratic voting favors the smaller vote, quadratic burning favors the larger burn.
