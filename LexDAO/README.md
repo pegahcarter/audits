@@ -13,8 +13,6 @@ This audit covers LexDAO's LEX token contracts on commit [`498bf4b`](https://git
 You can deploy a LexToken on Ethereum mainnet: [0x3F59353034424839dbeBa047991f3E54E1AD19E5](https://etherscan.io/address/0x3F59353034424839dbeBa047991f3E54E1AD19E5#code). 
 
 
-
-
 ### init()
 
 There is no check that `_managerSupply` and `_saleSupply` is <= `_totalSupplyCap`.  If the supply is greater for `_managerSupply` and `_saleSupply`, it would lead to init() reverting when attempting to mint `_saleSupply`.  `DOMAIN_SEPARATOR` would not be set, leading to a broken `permit()` function.
@@ -22,11 +20,33 @@ There is no check that `_managerSupply` and `_saleSupply` is <= `_totalSupplyCap
 __Suggestion:__ Add a condition of `require(_managerSupply.add(_saleSupply) <= totalSupplyCap, "_managerSupply + _saleSupply > totalSupplyCap")` to `init()` before variables are set.
 
 
-### burn()
+### updateSale()
 
-While SafeMath is built to revert on overflow/underflow, it should not be used to error check on value sent.  In this case SafeMath is used so that `balanceOf[msg.sender] = balanceOf[msg.sender].sub(value)` will revert when the value sent by `msg.sender` is greater than their balance, without a revert message.
+If `_saleSupply + totalSupply > totalSupplyCap`, the mint will revert but only after updating `saleRate` and `forSale` variables, and will not emit `UpdateSale`, even though variables were updated.
 
-__Suggestion:__ add a condition of `require(value <= balanceOf[msg.sender], "value exceeds balance of msg.sender")` to the start of `burn()`.
+__Suggestion:__ TODO 
+
+If you are only trying to update `_saleRate` or `_forSale`, `_saleSupply = 0` will still call `_mint()` even though no new tokens were created for the sale.
+
+__Suggestion:__ TODO
+
+
+An additional functionality to `updateSale()` that would be beneficial is an option to burn the tokens for sale.  In the current implementation, tokens are able to be created and sent to the contract, but once they're in the contract they're only able to be removed through purchase.
+
+A scenario where this would play out would be if you had a token sale for a duration of time and not all tokens were sold.  With the current implementation, the best you could do after the sale would be to set `forSale` to `false`.  Then, if you wanted to have a second token sale, you would not be able to sell less tokens than what was not sold in the first round.
+
+
+
+
+
+### receive()
+An address can purchase tokens from the contract by sending ETH to the contract.  
+
+
+
+### withdrawToken()
+`withrawTo` is misspelled and should be `withdrawTo` 
+
 
 
 ## Additional Feedback
