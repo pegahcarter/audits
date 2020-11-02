@@ -21,12 +21,23 @@ There is no check that `_managerSupply` and `_saleSupply` is <= `_totalSupplyCap
 
 __Suggestion:__ Add a condition of `require(_managerSupply.add(_saleSupply) <= totalSupplyCap, "_managerSupply + _saleSupply > totalSupplyCap")` to `init()` before variables are set.
 
+
 ### burn()
 
 While SafeMath is built to revert on overflow/underflow, it should not be used to error check on value sent.  In this case SafeMath is used so that `balanceOf[msg.sender] = balanceOf[msg.sender].sub(value)` will revert when the value sent by `msg.sender` is greater than their balance, without a revert message.
 
 __Suggestion:__ add a condition of `require(value <= balanceOf[msg.sender], "value exceeds balance of msg.sender")` to the start of `burn()`.
 
-A `Transfer(msg.sender, address(0), value)` event is emitted when the burn occurs, signifying the value is sent to `0x000...`.  In reality, no tokens are transferred to `0x000...`, or are even transferred at all, but are only deducted from the account balance and total supply.
 
-__Suggestion:__ add a specific `Burn(address indexed from, uint256 value)` event to signify a burn.
+## Additional Feedback
+
+### Documentation
+None of the contracts reviewed had documentation.  [NatSpec](https://solidity.readthedocs.io/en/latest/natspec-format.html#natspec) is the recommended documentation style and should be used throughout the project.
+
+## Testing
+There are no tests for the contracts.  Tests are recommended to check for edge cases and ensure contracts function as expected.  I would recommend [Hardhat](https://hardhat.org).
+
+
+## Disclaimer
+This audit was performed at no cost to LexDAO.  This report is not investment advice and in no way proof of a perfect smart contract.  This audit was done to the best of Carl Farterson's ability and focused on several of the primary contracts.
+
