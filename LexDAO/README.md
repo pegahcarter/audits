@@ -13,6 +13,25 @@ This audit covers LexDAO's LEX token contracts on commit [`498bf4b`](https://git
 You can deploy a LexToken on Ethereum mainnet: [0x3F59353034424839dbeBa047991f3E54E1AD19E5](https://etherscan.io/address/0x3F59353034424839dbeBa047991f3E54E1AD19E5#code). 
 
 
+
+## Overview
+LexDAO is a group of legal engineering professionals who are seeking to provide a trusted layer between the decentralized world of blockchains and legal settlement layer in the real world.  LexDAO provides a tool to tokenize yourself with the "LexDAO Certified Personal Token Factory", where you can mint personal tokens based on Ethereum through the LexDAO website.
+
+A token factory (technically speaking, a "clone factory") is used to efficiently deploy the same type of contract repeatedly.  Instead of deploying all new code for each contract, you can create a generalized contract that you plan to use which will accept different parameters when created.  LexDAO uses a custom token factory to create personal tokens,, where different parameters may include token symbol, supply, token manager address, etc.
+
+
+## Contracts Reviewed
+* LexToken.sol
+* LexTokenFactory.sol
+
+### LexTokenFactory.sol
+
+### LexToken.sol
+
+
+
+## Suggestions
+
 ### init()
 
 There is no check that `_managerSupply` and `_saleSupply` is <= `_totalSupplyCap`.  If the supply is greater for `_managerSupply` and `_saleSupply`, it would lead to init() reverting when attempting to mint `_saleSupply`.  `DOMAIN_SEPARATOR` would not be set, leading to a broken `permit()` function.
