@@ -4,15 +4,6 @@
 ## Scope
 This audit covers LexDAO's LEX token contracts on commit [`498bf4b`](https://github.com/lexDAO/LexCorpus/tree/498bf4b50ae5f6c4719998346f6f5a54ba273537).  Contracts reviewed are within [`contracts/token/lextoken/solidity`](https://github.com/lexDAO/LexCorpus/tree/498bf4b50ae5f6c4719998346f6f5a54ba273537/contracts/token/lextoken/solidity).
 
-# LexToken
-
-[LexToken](https://github.com/lexDAO/LexToken) represents assets with LexDAO smart contracts and legal wrappers.
-
-## Use LexToken
-
-You can deploy a LexToken on Ethereum mainnet: [0x3F59353034424839dbeBa047991f3E54E1AD19E5](https://etherscan.io/address/0x3F59353034424839dbeBa047991f3E54E1AD19E5#code). 
-
-
 
 ## Overview
 LexDAO is a group of legal engineering professionals who are seeking to provide a trusted layer between the decentralized world of blockchains and legal settlement layer in the real world.  LexDAO provides a tool to tokenize yourself with the "LexDAO Certified Personal Token Factory", where you can mint personal tokens based on Ethereum through the LexDAO website.
@@ -42,14 +33,14 @@ The token factory to create personal tokens.
         * `details`: contains additional information
     * Functions
         * `launchLexToken()`: creates personal tokens and rewards the token creator the `userReward` amount of `lexDAOtoken`
-        * `updateGovernance()`: used to update `lexDAO`, `lexDAOtoken`, `userReward`, and `details` variables.  Can only be called by the `lexDAO` address.
+        * `updateGovernance()`: used to update `lexDAO`, `lexDAOtoken`, `userReward`, and `details` variables, called by `lexDAO`
 
 ### LexToken.sol
 The ERC20-like token launched from `LexTokenFactory`.  There are some key additions to the ERC20 standard worth noting:
-* The contract is able to sell its' token when ETH is sent to the contract
-* The contract manager is able to disable token transfers
-* The contract manager and resolver are able to withdraw tokens from addresses and send those tokens to addresses of their choice.
-* LexToken utilizes [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) to combine approve and transfers into one transaction.  It also allows gasless token transfers by paying for gas in the token and allowing someone else to pay for the gas cost entirely.
+1. The contract is able to sell its' token when ETH is sent to the contract.
+2. The contract manager is able to disable token transfers.
+3. The contract manager and resolver are able to withdraw tokens from addresses and send those tokens to addresses of their choice.
+4. LexToken utilizes [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) to combine approve and transfers into one transaction.  It also allows gasless token transfers by paying for gas in the token and allowing someone else to pay for the gas cost entirely.
 
 
 * `interface IERC20`: brief ERC-20 interface
@@ -58,20 +49,20 @@ The ERC20-like token launched from `LexTokenFactory`.  There are some key additi
 
 * `contract LexToken`
     * Variables
-        * `manager`: account managing token rules and sale - updateable by manager
-        * `resolver`: account acting as backup for lost token and arbitration of disputed token transfers - updateable by manager
+        * `manager`: account managing token rules and sale - updateable by `manager`
+        * `resolver`: account acting as backup for lost token and arbitration of disputed token transfers - updateable by `manager`
         * `decimals`: fixed unit scaling factor - default 18 to match ETH
-        * `saleRate`: rate of tokens purchased when sending ETH to contract - updateable by manager
-        * `totalSupply`: tracks outstanding token mint - mint updateable by manager
+        * `saleRate`: rate of tokens purchased when sending ETH to contract - updateable by `manager`
+        * `totalSupply`: tracks outstanding token mint - updateable by `manager`
         * `totalSupplyCap`: maximum of token mintable
         * `DOMAIN_SEPARATOR`: EIP-2612 permit() pattern - hash identifies contract
         * `PERMIT_TYPEHASH`: EIP-2612 permit() pattern - hash identifies function
-        * `details`: details token offering, redemption, etc. - updateable by manager
+        * `details`: details token offering, redemption, etc. - updateable by `manager`
         * `name`: fixed token name
         * `symbol`: fixed token symbol
-        * `forSale`: status of token sale - e.g. if `false`, ETH sent to token address will not return token per saleRate - updateable by manager
-        * `initialized`: internally tracks token deployment under EIP-1167 proxy pattern (TODO- reference)
-        * `transferable`: transferability of token - does not affect token sale - updateable by manager
+        * `forSale`: status of token sale - e.g. if `false`, ETH sent to token address will not return token per saleRate - updateable by `manager`
+        * `initialized`: internally tracks token deployment to signify contract creation
+        * `transferable`: transferability of token - does not affect token sale - updateable by `manager`
     * Functions
         * `init()`: Runs at contract creation and sets variables
         * `receive()`: Handles ETH sent to the contract and returns the contract token to the sender if a token sale is active 
@@ -87,7 +78,7 @@ The ERC20-like token launched from `LexTokenFactory`.  There are some key additi
         * `updateGovernance()`: Modify `manager`, `resolver`, and `details`, called by `manager`
         * `updateSale()`: Modify `saleRate` and `forSale`, and mint tokens to the contract address to sell, called by `manager`
         * `updateTransferability()`: Modify `transferable`, called by `manager`
-        * `withdrawToken()`: Withdraw many tokens from the contract address at once to one address, called by `manager`
+        * `withdrawToken()`: Withdraw many ERC20-like tokens from the contract address at once to one address, called by `manager`
 
 
 ## Suggestions
@@ -100,7 +91,7 @@ __Suggestion:__ Add a conditional statement to only mint when `_saleSupply != 0`
 if (_saleSupply != 0) {_mint(address(this), _saleSupply);}
 ```
 
-An additional functionality to `updateSale()` is an option to burn the tokens for sale.  In the current implementation, tokens are able to be created and sent to the contract, but once they're in the contract they're only able to be removed through purchase or calling `withdrawToken()`.  As `withdrawToken()` is 
+An additional functionality to `updateSale()` is an option to burn the tokens for sale.  In the current implementation, tokens are able to be created and sent to the contract, but once they're in the contract they're only able to be removed through purchase or calling `withdrawToken()`.  As `withdrawToken()` is built to transfer multiple tokens, I would argue `withdrawToken()` is meant to handle ERC-20 tokens other than the contract token.
 
 A scenario where this would play out would be if you had a token sale for a duration of time and not all tokens were sold.  With the current implementation, the best you could do after the sale to remove the tokens from circulation would be for the `manager` to call `withdrawToken()` to send the remaining tokens to an external address, then call `burn()`.  However, this adds an additional layer of risk as the external address would have control of the tokens before burning them.  Burning the tokens directly from the contract removes that risk. 
 
@@ -166,7 +157,7 @@ __Suggestion:__ change `withrawTo` to `withdrawTo`.
 ## Additional Feedback
 
 ### Documentation
-None of the contracts reviewed had documentation.  [NatSpec](https://solidity.readthedocs.io/en/latest/natspec-format.html#natspec) is the recommended documentation style and should be used throughout the project.
+Neither of the contracts reviewed had proper documentation.  [NatSpec](https://solidity.readthedocs.io/en/latest/natspec-format.html#natspec) is the recommended documentation style and should be used throughout the project.
 
 ## Testing
 There are no tests for the contracts.  Tests are recommended to check for edge cases and ensure contracts function as expected.  I recommend [Hardhat](https://hardhat.org).
