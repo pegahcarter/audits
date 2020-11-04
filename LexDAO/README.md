@@ -17,7 +17,8 @@ You can deploy a LexToken on Ethereum mainnet: [0x3F59353034424839dbeBa047991f3E
 ## Overview
 LexDAO is a group of legal engineering professionals who are seeking to provide a trusted layer between the decentralized world of blockchains and legal settlement layer in the real world.  LexDAO provides a tool to tokenize yourself with the "LexDAO Certified Personal Token Factory", where you can mint personal tokens based on Ethereum through the LexDAO website.
 
-A token factory (technically speaking, a "clone factory") is used to efficiently deploy the same type of contract repeatedly.  Instead of deploying all new code for each contract, you can create a generalized contract that you plan to use which will accept different parameters when created.  LexDAO uses a custom token factory to create personal tokens,, where different parameters may include token symbol, supply, token manager address, etc.
+A token factory (technically speaking, a "clone factory") is used to efficiently deploy the same type of contract repeatedly.  Instead of deploying all new code for each contract, you can create a generalized contract that you plan to use which will accept different parameters when created.  LexDAO uses a custom token factory to create personal tokens,where different parameters may include token symbol, supply, token manager address, etc.
+
 
 
 ## Contracts Reviewed
@@ -25,8 +26,68 @@ A token factory (technically speaking, a "clone factory") is used to efficiently
 * LexTokenFactory.sol
 
 ### LexTokenFactory.sol
+The token factory to create personal tokens.
+
+* `contract CloneFactory`
+    * Follows [EIP-1167](https://eips.ethereum.org/EIPS/eip-1167) guidelines to create simple contract clones.  Code matches the template of function `createClone` found in an example clone factory [repository](https://github.com/optionality/clone-factory/blob/32782f82dfc5a00d103a7e61a17a5dedbd1e8e9d/contracts/CloneFactory.sol#L32).
+
+* `contract LexTokenFactory`
+    * Utilizes `CloneFactory` to launch personal tokens.
+    * Variables
+        * `lexDAO`: address allowed to update governance
+        * `lexDAOtoken`: token rewarded to an address that use the contract to deploy a personal token
+        * `template`: generic personal token contract that is copied for each new token deployment
+        * `userReward`: amount of tokens rewarded when a personal token is deployed
+        * `details`: contains additional information
+    * Functions
+        * `launchLexToken()`: creates personal tokens and rewards the token creator the `userReward` amount of `lexDAOtoken`
+        * `updateGovernance()`: used to update `lexDAO`, `lexDAOtoken`, `userReward`, and `details` variables.  Can only be called by the `lexDAO` address.
 
 ### LexToken.sol
+The ERC20-like token launched from `LexTokenFactory`.  There are some key additions to the ERC20 standard worth noting:
+* The contract is able to sell its' token when ETH is sent to the contract
+* The contract manager is able to disable token transfers
+* The contract manager and resolver are able to withdraw tokens from addresses and send those tokens to addresses of their choice.
+* TODO: EIP 2612
+
+
+* `interface IERC20`: brief ERC-20 interface
+
+* `library SafeMath`: arithmatic wrapper for uint under/overflow check
+
+* `contract LexToken`
+    * Variables
+        * `manager`: account managing token rules and sale - updateable by manager
+        * `resolver`: account acting as backup for lost token and arbitration of disputed token transfers - updateable by manager
+        * `decimals`: fixed unit scaling factor - default 18 to match ETH
+        * `saleRate`: rate of tokens purchased when sending ETH to contract - updateable by manager
+        * `totalSupply`: tracks outstanding token mint - mint updateable by manager
+        * `totalSupplyCap`: maximum of token mintable
+        * `DOMAIN_SEPARATOR`: EIP-2612 permit() pattern - hash identifies contract
+        * `PERMIT_TYPEHASH`: EIP-2612 permit() pattern - hash identifies function
+        * `details`: details token offering, redemption, etc. - updateable by manager
+        * `name`: fixed token name
+        * `symbol`: fixed token symbol
+        * `forSale`: status of token sale - e.g. if `false`, ETH sent to token address will not return token per saleRate - updateable by manager
+        * `initialized`: internally tracks token deployment under EIP-1167 proxy pattern (TODO- reference)
+        * `transferable`: transferability of token - does not affect token sale - updateable by manager
+    * Functions
+        * `init()`: Runs at contract creation and sets variables
+        * `receive()`: Handles ETH sent to the contract and returns the contract token to the sender if a token sale is active 
+        * `approve()` and `_approve()`: Allow an address to send an amount of the sender's tokens
+        * `balanceResolution()`: Resolve disputed or lost balances, called by `resolver`
+        * `burn()`: Remove tokens from the token supply from an address
+        * `permit()`: Allow an address to spend your tokens until a specified deadline
+        * `transfer()` and `_transfer`: Transfer tokens from one address to another address
+        * `transferBatch()`: Transfer tokens from one address to many addresses at once
+        * `transferFrom()`: Use a permitted address to send your tokens to another address
+        * `mint()` and `_mint()`: Generate tokens and send to a specified address, called by `manager`
+        * `mintBatch()`: Generate tokens and send to many addresses at once, called by `manager`
+        * `updateGovernance()`: Modify `manager`, `resolver`, and `details`, called by `manager`
+        * `updateSale()`: Modify `saleRate` and `forSale`, and mint tokens to the contract address to sell, called by `manager`
+        * `updateTransferability()`: Modify `transferable`, called by `manager`
+        * `withdrawToken()`: Withdraw many tokens from the contract address at once to one address, called by `manager`
+
 
 
 
