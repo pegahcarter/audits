@@ -5,5 +5,5 @@
 * ERC-777
   * [EIP](https://eips.ethereum.org/EIPS/eip-777)
   * [OpenZeppelin Docs](https://docs.openzeppelin.com/contracts/3.x/erc777)
-
-
+  * https://www.wealdtech.com/articles/understanding-erc777-token-contracts/
+  * https://www.wealdtech.com/articles/understanding-erc777-token-operator-contracts/
