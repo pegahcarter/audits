@@ -17,8 +17,9 @@ You can deploy a LexToken on Ethereum mainnet: [0x3F59353034424839dbeBa047991f3E
 ## Overview
 LexDAO is a group of legal engineering professionals who are seeking to provide a trusted layer between the decentralized world of blockchains and legal settlement layer in the real world.  LexDAO provides a tool to tokenize yourself with the "LexDAO Certified Personal Token Factory", where you can mint personal tokens based on Ethereum through the LexDAO website.
 
-A token factory (technically speaking, a "clone factory") is used to efficiently deploy the same type of contract repeatedly.  Instead of deploying all new code for each contract, you can create a generalized contract that you plan to use which will accept different parameters when created.  LexDAO uses a custom token factory to create personal tokens,where different parameters may include token symbol, supply, token manager address, etc.
+A token factory (technically speaking, a "clone factory") is used to efficiently deploy the same type of contract repeatedly.  Instead of deploying all new code for each contract, you can create a generalized contract that you plan to use which will accept different parameters when created.  LexDAO uses a custom token factory to create personal tokens, where different parameters may include token symbol, supply, token manager address, etc.  An additional functionality of the LexDAO token factory is to award an address with a `userReward` quantity of `lexDAOtoken` when it uses the factory to launch a token.
 
+The beauty of LexToken is in its' simplicity.  250 lines of code is used to deploy personal tokens with SafeMath and a brief ERC20 interface, with an additional 96 lines of code used for the token factory.
 
 
 ## Contracts Reviewed
@@ -48,7 +49,7 @@ The ERC20-like token launched from `LexTokenFactory`.  There are some key additi
 * The contract is able to sell its' token when ETH is sent to the contract
 * The contract manager is able to disable token transfers
 * The contract manager and resolver are able to withdraw tokens from addresses and send those tokens to addresses of their choice.
-* TODO: EIP 2612
+* LexToken utilizes [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) to combine approve and transfers into one transaction.  It also allows gasless token transfers by paying for gas in the token and allowing someone else to pay for the gas cost entirely.
 
 
 * `interface IERC20`: brief ERC-20 interface
@@ -89,16 +90,7 @@ The ERC20-like token launched from `LexTokenFactory`.  There are some key additi
         * `withdrawToken()`: Withdraw many tokens from the contract address at once to one address, called by `manager`
 
 
-
-
 ## Suggestions
-
-### init()
-
-There is no check that `_managerSupply` and `_saleSupply` is <= `_totalSupplyCap`.  If the supply is greater for `_managerSupply` and `_saleSupply`, it would lead to init() reverting when attempting to mint `_saleSupply`.  `DOMAIN_SEPARATOR` would not be set, leading to a broken `permit()` function.
-
-__Suggestion:__ Add a condition of `require(_managerSupply.add(_saleSupply) <= totalSupplyCap, "_managerSupply + _saleSupply > totalSupplyCap")` to `init()` before variables are set.
-
 
 ### updateSale()
 If you are only trying to update `_saleRate` or `_forSale`, `_saleSupply = 0` will still call `_mint()` even though no new tokens were created for the sale.
@@ -108,9 +100,9 @@ __Suggestion:__ Add a conditional statement to only mint when `_saleSupply != 0`
 if (_saleSupply != 0) {_mint(address(this), _saleSupply);}
 ```
 
-An additional functionality to `updateSale()` that would be beneficial is an option to burn the tokens for sale.  In the current implementation, tokens are able to be created and sent to the contract, but once they're in the contract they're only able to be removed through purchase.
+An additional functionality to `updateSale()` is an option to burn the tokens for sale.  In the current implementation, tokens are able to be created and sent to the contract, but once they're in the contract they're only able to be removed through purchase or calling `withdrawToken()`.  As `withdrawToken()` is 
 
-A scenario where this would play out would be if you had a token sale for a duration of time and not all tokens were sold.  With the current implementation, the best you could do after the sale would be to set `forSale` to `false`.  Then, if you wanted to have a second token sale, you would not be able to sell less tokens than what was not sold in the first round.
+A scenario where this would play out would be if you had a token sale for a duration of time and not all tokens were sold.  With the current implementation, the best you could do after the sale to remove the tokens from circulation would be for the `manager` to call `withdrawToken()` to send the remaining tokens to an external address, then call `burn()`.  However, this adds an additional layer of risk as the external address would have control of the tokens before burning them.  Burning the tokens directly from the contract removes that risk. 
 
 __Suggestion:__ add a boolean `burnTokens` paramater to `updateSale()` to indicate when tokens for sale are burned.
 
@@ -165,14 +157,10 @@ contract LexToken {
 }
 ```
 
-
-
-
 ### withdrawToken()
 `withrawTo` is misspelled.
 
 __Suggestion:__ change `withrawTo` to `withdrawTo`.
-
 
 
 ## Additional Feedback
@@ -181,7 +169,7 @@ __Suggestion:__ change `withrawTo` to `withdrawTo`.
 None of the contracts reviewed had documentation.  [NatSpec](https://solidity.readthedocs.io/en/latest/natspec-format.html#natspec) is the recommended documentation style and should be used throughout the project.
 
 ## Testing
-There are no tests for the contracts.  Tests are recommended to check for edge cases and ensure contracts function as expected.  I would recommend [Hardhat](https://hardhat.org).
+There are no tests for the contracts.  Tests are recommended to check for edge cases and ensure contracts function as expected.  I recommend [Hardhat](https://hardhat.org).
 
 
 ## Disclaimer
