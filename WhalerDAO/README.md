@@ -229,7 +229,7 @@ __Solution:__ Implementing the suggestion.  Commit with changed code will be add
 
 __UPDATE:__ Commit [`8476eac`](https://github.com/WhalerDAO/tree-contracts/commit/8476eace9a943d256650946215d5090506a9167e) addresses this issue and calculates `rewardsCutAmount` before TREE is sold to Uniswap.
 
-```Solidity
+```Javascript
   function handlePositiveRebase(uint256 mintedTREEAmount)
     external
     onlyRebaser
