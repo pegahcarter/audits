@@ -9,12 +9,13 @@
 
 This audit covers [DeFi77](https://defi777.com), a website where you can wrap ERC-20 tokens into ERC-777 tokens.
 
-Commit [`38542e7`](https://github.com/carlfarterson/defi777)
+Commit [`8b834e`](https://github.com/carlfarterson/defi777)
 
 
 ## Description
 
-ERC-777 tokens generally offer more functionality than ERC-20 tokens.
+ERC-777 tokens generally offer more functionality than ERC-20 tokens.  The TLDR of it is:
+* ERC-777 can flash mint / burn
 
 
 
@@ -22,6 +23,13 @@ ERC-777 tokens generally offer more functionality than ERC-20 tokens.
 ## -------------------------------------------
 
 
+
+
+## Repository structure
+
+```
+
+```
 
 
 
