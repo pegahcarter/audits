@@ -51,10 +51,6 @@ ERC-777 tokens generally offer more functionality than ERC-20 tokens.  The TLDR 
 `yarn hardhat test`
 
 ```
-yarn run v1.22.4
-$ /home/carl/Documents/audit/defi777/defi777/node_modules/.bin/hardhat test
-
-
   Contract: Aave
 Your project has Truffle migrations, which have to be turned into a fixture to run your tests with Hardhat
     ✓ should deposit and withdraw Dai from Aave using Aave777 (591ms)
