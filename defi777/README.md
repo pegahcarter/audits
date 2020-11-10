@@ -28,7 +28,7 @@ ERC-777 tokens generally offer more functionality than ERC-20 tokens.  The TLDR 
   * https://www.wealdtech.com/articles/understanding-erc777-token-operator-contracts/
 
 
-## -------------------------------------------
+---
 
 ## Repository structure
 
@@ -39,7 +39,7 @@ ERC-777 tokens generally offer more functionality than ERC-20 tokens.  The TLDR 
 
 
 
-## -------------------------------------------
+---
 
 ## Tests
 
@@ -130,7 +130,7 @@ Done in 13.84s.
 
 
 
-## -------------------------------------------
+---
 
 ## Contracts
 
@@ -141,7 +141,7 @@ Done in 13.84s.
 
 
 
-## -------------------------------------------
+---
 
 ## Notes
 
