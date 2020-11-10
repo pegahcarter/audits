@@ -33,6 +33,159 @@ ERC-777 tokens generally offer more functionality than ERC-20 tokens.  The TLDR 
 ## Repository structure
 
 ```
+├── contracts
+│   ├── farming
+│   │   ├── FarmerTokenFactory.sol
+│   │   ├── FarmerToken.sol
+│   │   ├── IFarmerTokenFactory.sol
+│   │   ├── IFarmerToken.sol
+│   │   ├── IYieldAdapterFactory.sol
+│   │   ├── YieldAdapterFactory.sol
+│   │   └── YieldAdapter.sol
+│   ├── GuardedReceiver.sol
+│   ├── InfiniteApprove.sol
+│   ├── interfaces
+│   │   └── IWETH.sol
+│   ├── Migrations.sol
+│   ├── protocols
+│   │   ├── aave
+│   │   │   ├── Aave777.sol
+│   │   │   ├── AToken777.sol
+│   │   │   ├── ERC777WithoutBalance.sol
+│   │   │   ├── IAToken.sol
+│   │   │   ├── ILendingPoolAddressesProvider.sol
+│   │   │   ├── ILendingPoolCore.sol
+│   │   │   ├── ILendingPool.sol
+│   │   │   ├── test
+│   │   │   │   ├── TestAaveLendingPoolAddressProvider.sol
+│   │   │   │   ├── TestAaveLendingPoolCore.sol
+│   │   │   │   ├── TestAaveLendingPool.sol
+│   │   │   │   └── TestAToken.sol
+│   │   │   └── WadRayMath.sol
+│   │   ├── balancer
+│   │   │   ├── BalancerPoolExitFactory.sol
+│   │   │   ├── BalancerPoolExit.sol
+│   │   │   ├── BalancerPoolFactory.sol
+│   │   │   ├── BalancerPool.sol
+│   │   │   ├── IBalancerPoolFactory.sol
+│   │   │   ├── interfaces
+│   │   │   │   ├── BFactory.sol
+│   │   │   │   └── BPool.sol
+│   │   │   └── test
+│   │   │       ├── TestBFactory.sol
+│   │   │       └── TestBPool.sol
+│   │   ├── curve
+│   │   │   ├── CRVFarmerFactory.sol
+│   │   │   ├── CRVFarmerToken.sol
+│   │   │   ├── CurveAdapter.sol
+│   │   │   ├── CurveExitAdapter.sol
+│   │   │   ├── ICRVFarmerFactory.sol
+│   │   │   ├── interfaces
+│   │   │   │   ├── ICurveGague.sol
+│   │   │   │   ├── ICurveMinter.sol
+│   │   │   │   └── ICurvePool.sol
+│   │   │   └── test
+│   │   │       ├── TestCurveGague.sol
+│   │   │       ├── TestCurveMinter.sol
+│   │   │       └── TestCurvePool.sol
+│   │   ├── pooltogether
+│   │   │   ├── IPoolTogetherPool.sol
+│   │   │   ├── PoolTogether777.sol
+│   │   │   ├── test
+│   │   │   │   ├── TestPoolTogetherPool.sol
+│   │   │   │   └── TestPoolToken.sol
+│   │   │   └── UniswapPoolTogether777.sol
+│   │   ├── synthetix
+│   │   │   ├── interfaces
+│   │   │   │   ├── ISynthetix.sol
+│   │   │   │   └── ISynth.sol
+│   │   │   ├── ISynthExchangeFactory.sol
+│   │   │   ├── SynthExchangeFactory.sol
+│   │   │   ├── SynthExchange.sol
+│   │   │   └── test
+│   │   │       ├── TestSynthetix.sol
+│   │   │       └── TestSynth.sol
+│   │   ├── uniswap
+│   │   │   ├── interfaces
+│   │   │   │   ├── IUniswapV2Factory.sol
+│   │   │   │   ├── IUniswapV2Pair.sol
+│   │   │   │   └── IUniswapV2Router01.sol
+│   │   │   ├── IUniswapAdapterFactory.sol
+│   │   │   ├── test
+│   │   │   │   ├── TestUniswapFactory.sol
+│   │   │   │   ├── TestUniswapPair.sol
+│   │   │   │   └── TestUniswapRouter.sol
+│   │   │   ├── UniswapAdapterFactory.sol
+│   │   │   ├── UniswapAdapter.sol
+│   │   │   ├── UniswapPoolAdapterFactory.sol
+│   │   │   └── UniswapPoolAdapter.sol
+│   │   └── yearn
+│   │       ├── interfaces
+│   │       │   └── IyVault.sol
+│   │       ├── IYVaultAdapterFactory.sol
+│   │       ├── test
+│   │       │   └── TestYVault.sol
+│   │       ├── YVaultAdapterFactory.sol
+│   │       └── YVaultAdapter.sol
+│   ├── Receiver.sol
+│   ├── test
+│   │   ├── MaliciousUpgradeToken.sol
+│   │   ├── TestDai.sol
+│   │   ├── TestERC20.sol
+│   │   ├── TestERC2612.sol
+│   │   ├── TestFlashLoanRecipient.sol
+│   │   ├── TestGranularity.sol
+│   │   ├── TestMKR.sol
+│   │   ├── TestUSDC.sol
+│   │   └── WETH.sol
+│   └── tokens
+│       ├── AddressBook.sol
+│       ├── ERC777WithGranularity.sol
+│       ├── Granularity.sol
+│       ├── IAddressBook.sol
+│       ├── IPermit.sol
+│       ├── IWrapped777.sol
+│       ├── IWrapperFactory.sol
+│       ├── Unwrapper.sol
+│       ├── Wrapped777.sol
+│       └── WrapperFactory.sol
+├── deploy
+│   ├── AddressBook.js
+│   └── WrapperFactory.js
+├── deployments
+│   └── kovan
+│       ├── AddressBook.json
+│       ├── solcInputs
+│       │   └── 154b6895e0a4b76c9249b199b14f57cd.json
+│       └── WrapperFactory.json
+├── hardhat.config.js
+├── integration-test
+│   ├── balancer-pools.js
+│   ├── constants.js
+│   ├── integration-test.js
+│   └── lib.js
+├── migrations
+│   ├── 1587828582_wrappers.js
+│   ├── 1587828590_uniswap.js
+│   └── 1_initial_migration.js
+├── package.json
+├── README.md
+├── test
+│   ├── aave.js
+│   ├── address-book.js
+│   ├── balancer-pools.js
+│   ├── curve.js
+│   ├── farmer-token.js
+│   ├── granularity.js
+│   ├── pooltogether.js
+│   ├── test-lib.js
+│   ├── uniswap.js
+│   ├── uniswap-pools.js
+│   ├── unwrapper.js
+│   ├── wrappers.js
+│   └── yearn.js
+├── truffle-config.js
+└── yarn.lock
 
 ```
 
