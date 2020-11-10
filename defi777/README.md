@@ -199,6 +199,12 @@ ERC-777 tokens generally offer more functionality than ERC-20 tokens.  The TLDR 
 `yarn install`
 
 ### Hardhat
+In order to run the hardhat tests, you'll need to first set .env variables for `INFURA_KEY` and `MNEMONIC`.  I would suggest creating a `sample.env` file like so:
+```
+INFURA_KEY="{enter key here}"
+MNEMONIC=slender language drastic vehicle start bachelor distance shove amount they glide earth width base enjoy
+```
+
 `yarn hardhat compile`
 
 `yarn hardhat test`
