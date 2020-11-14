@@ -18,14 +18,6 @@ ERC-777 tokens generally offer more functionality than ERC-20 tokens.  The TLDR 
 * ERC-777 can flash mint / burn
 
 
-## Resources
-* [ERC-20 vs ERC-777 tokens explained](https://hackernoon.com/erc777-is-the-new-token-standard-replacing-the-erc20-fd6319c3b13)
-* [Summary](https://docs.google.com/document/d/1mbkmh_4j9ywmFTH0pr34fmpp9rlvPbjsvEfj0MbIyv8/edit)
-* ERC-777
-  * [EIP](https://eips.ethereum.org/EIPS/eip-777)
-  * [OpenZeppelin Docs](https://docs.openzeppelin.com/contracts/3.x/erc777)
-  * https://www.wealdtech.com/articles/understanding-erc777-token-contracts/
-  * https://www.wealdtech.com/articles/understanding-erc777-token-operator-contracts/
 
 
 ---
@@ -286,9 +278,112 @@ Done in 13.84s.
 
 
 ---
-
 ## Contracts
 
+### Directory of contracts audited
+```
+├── contracts
+│   ├── farming
+│   │   ├── FarmerTokenFactory.sol
+│   │   ├── FarmerToken.sol
+│   │   ├── IFarmerTokenFactory.sol
+│   │   ├── IFarmerToken.sol
+│   │   ├── IYieldAdapterFactory.sol
+│   │   ├── YieldAdapterFactory.sol
+│   │   └── YieldAdapter.sol
+│   ├── GuardedReceiver.sol
+│   ├── InfiniteApprove.sol
+│   ├── interfaces
+│   │   └── IWETH.sol
+│   ├── Migrations.sol
+│   ├── protocols
+│   │   ├── uniswap
+│   │   │   ├── interfaces
+│   │   │   │   ├── IUniswapV2Factory.sol
+│   │   │   │   ├── IUniswapV2Pair.sol
+│   │   │   │   └── IUniswapV2Router01.sol
+│   │   │   ├── IUniswapAdapterFactory.sol
+│   │   │   ├── test
+│   │   │   │   ├── TestUniswapFactory.sol
+│   │   │   │   ├── TestUniswapPair.sol
+│   │   │   │   └── TestUniswapRouter.sol
+│   │   │   ├── UniswapAdapterFactory.sol
+│   │   │   ├── UniswapAdapter.sol
+│   │   │   ├── UniswapPoolAdapterFactory.sol
+│   │   │   └── UniswapPoolAdapter.sol
+│   ├── Receiver.sol
+│   ├── test
+│   │   ├── MaliciousUpgradeToken.sol
+│   │   ├── TestDai.sol
+│   │   ├── TestERC20.sol
+│   │   ├── TestERC2612.sol
+│   │   ├── TestFlashLoanRecipient.sol
+│   │   ├── TestGranularity.sol
+│   │   ├── TestMKR.sol
+│   │   ├── TestUSDC.sol
+│   │   └── WETH.sol
+│   └── tokens
+│       ├── AddressBook.sol
+│       ├── ERC777WithGranularity.sol
+│       ├── Granularity.sol
+│       ├── IAddressBook.sol
+│       ├── IPermit.sol
+│       ├── IWrapped777.sol
+│       ├── IWrapperFactory.sol
+│       ├── Unwrapper.sol
+│       ├── Wrapped777.sol
+│       └── WrapperFactory.sol
+├── deploy
+│   ├── AddressBook.js
+│   └── WrapperFactory.js
+├── hardhat.config.js
+├── integration-test
+│   ├── balancer-pools.js
+│   ├── constants.js
+│   ├── integration-test.js
+│   └── lib.js
+├── package.json
+├── README.md
+├── test
+│   ├── aave.js
+│   ├── address-book.js
+│   ├── balancer-pools.js
+│   ├── curve.js
+│   ├── farmer-token.js
+│   ├── granularity.js
+│   ├── pooltogether.js
+│   ├── test-lib.js
+│   ├── uniswap.js
+│   ├── uniswap-pools.js
+│   ├── unwrapper.js
+│   ├── wrappers.js
+│   └── yearn.js
+
+```
+
+
+### `farming/YieldAdapter.sol`
+
+
+### `farming/FarmerToken.sol`
+
+
+### `farming/FarmerTokenFactory.sol`
+
+
+### `farming/IFarmerToken.sol`
+
+
+### `farming/IFarmerTokenFactory.sol`
+
+
+### `farming/IYieldAdaptorFactory.sol`
+
+
+### `farming/YieldAdaptor.sol`
+
+
+### `farming/YieldAdaptorFactory.sol`
 
 
 
@@ -312,3 +407,32 @@ First, some live DeFi777 contract addresses:
 * [uniswap777 .eth](https://etherscan.io/address/uniswap777.eth)
 * []()
 * []()
+
+
+### 2020.11.10
+
+```
+bytes32 public constant WRAPPER_BYTECODE_HASH = keccak256(type(FarmerToken).creationCode);
+ ```
+https://solidity.readthedocs.io/en/v0.7.0/units-and-global-variables.html#meta-type
+
+
+### 2020.11.14
+`farming/YieldAdapter.sol`- Should have documentation explaining `IERC1820Registry` hexidecimal calulcation
+
+
+
+
+
+
+
+
+
+## Resources
+* [ERC-20 vs ERC-777 tokens explained](https://hackernoon.com/erc777-is-the-new-token-standard-replacing-the-erc20-fd6319c3b13)
+* [Summary](https://docs.google.com/document/d/1mbkmh_4j9ywmFTH0pr34fmpp9rlvPbjsvEfj0MbIyv8/edit)
+* [EIP-777](https://eips.ethereum.org/EIPS/eip-777)
+* https://www.wealdtech.com/articles/understanding-erc777-token-contracts/
+* https://www.wealdtech.com/articles/understanding-erc777-token-operator-contracts/
+
+
