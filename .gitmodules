@@ -1,6 +1,6 @@
 [submodule "tree/tree-contracts"]
-	path = WhalerDAO/tree-contracts/tree/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21
-	url = https://github.com/WhalerDAO/tree-contracts
+	path = WhalerDAO/tree-contracts
+	url = https://github.com/WhalerDAO/tree-contracts/9d4f735ab9a1e7ae3310069ab637c9bec4e72d21
 [submodule "LexDAO/LexCorpus"]
 	path = LexDAO/LexCorpus
 	url = https://github.com/lexDAO/LexCorpus/tree/498bf4b50ae5f6c4719998346f6f5a54ba273537/contracts/token/lextoken/solidity
