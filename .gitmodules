@@ -4,3 +4,6 @@
 [submodule "LexDAO/LexCorpus"]
 	path = LexDAO/LexCorpus
 	url = https://github.com/lexDAO/LexCorpus
+[submodule "BlockArt/blockart-contracts"]
+	path = BlockArt/blockart-contracts
+	url = git@github.com:adrianleb/blockart-contracts
